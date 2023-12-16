@@ -1,10 +1,16 @@
-import { HttpClient } from '@angular/common/http';
+import { CurrencyPipe, NgIf } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
+import { Router } from '@angular/router';
 import { Cart, CartItem } from 'src/app/models/cart.model';
 import { CartService } from 'src/app/services/cart.service';
 
 @Component({
+  standalone: true,
   selector: 'app-cart',
+  imports: [NgIf, MatCardModule, MatIconModule, CurrencyPipe, MatTableModule],
   templateUrl: './cart.component.html',
 })
 export class CartComponent implements OnInit {
@@ -19,7 +25,7 @@ export class CartComponent implements OnInit {
   ];
   dataSource = signal<CartItem[]>([]);
 
-  constructor(private cartService: CartService, private http: HttpClient) {}
+  constructor(private cartService: CartService, private router: Router) {}
 
   ngOnInit(): void {
     this.cartService.cart.subscribe((_cart: Cart) => {
@@ -51,5 +57,8 @@ export class CartComponent implements OnInit {
   onCheckout(): void {
     this.cartService.clearCart();
     console.log("Checkout successfully");
+  }
+  onNavigateToHome(): void {
+    this.router.navigate(['/home']);
   }
 }

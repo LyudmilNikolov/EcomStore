@@ -1,9 +1,17 @@
+import { CurrencyPipe, NgFor, NgIf } from '@angular/common';
 import { Component, Input, signal } from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { Router } from '@angular/router';
 import { Cart, CartItem } from 'src/app/models/cart.model';
 import { CartService } from 'src/app/services/cart.service';
 
 @Component({
+  standalone: true,
   selector: 'app-header',
+  imports: [MatIconModule, NgFor, NgIf, CurrencyPipe, MatMenuModule, MatToolbarModule, MatBadgeModule],
   templateUrl: './header.component.html',
 })
 export class HeaderComponent {
@@ -23,7 +31,7 @@ export class HeaderComponent {
       .reduce((prev, curent) => prev + curent, 0));
   }
 
-  constructor(private cartService: CartService) {}
+  constructor(private cartService: CartService, private router: Router) {}
 
   getTotal(items: CartItem[]): number {
     return this.cartService.getTotal(items);
@@ -31,5 +39,9 @@ export class HeaderComponent {
 
   onClearCart(): void {
     this.cartService.clearCart();
+  }
+
+  onNavigateToCart(): void {
+    this.router.navigate(['cart']);
   }
 }

@@ -1,9 +1,14 @@
+import { NgFor, NgIf } from '@angular/common';
 import { Component, EventEmitter, OnInit, Output, signal } from '@angular/core';
-import { MatSelectionListChange } from '@angular/material/list';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatListModule, MatSelectionListChange } from '@angular/material/list';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { StoreService } from 'src/app/services/store.service';
 
 @Component({
+  standalone: true,
   selector: 'app-filters',
+  imports: [MatSidenavModule, MatExpansionModule, MatListModule, NgFor, NgIf],
   templateUrl: './filters.component.html',
 })
 export class FiltersComponent implements OnInit {
