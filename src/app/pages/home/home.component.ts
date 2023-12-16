@@ -1,5 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, signal } from '@angular/core';
 import { Product } from 'src/app/models/product.model';
 import { CartService } from 'src/app/services/cart.service';
 import { StoreService } from 'src/app/services/store.service';
@@ -10,14 +9,13 @@ const ROWS_HEIGHT: { [id: number]: number } = { 1: 400, 3: 335, 4: 350 };
   selector: 'app-home',
   templateUrl: './home.component.html',
 })
-export class HomeComponent implements OnInit, OnDestroy {
-  cols = 3;
-  rowHeight: number = ROWS_HEIGHT[this.cols];
-  products: Array<Product> | undefined;
-  count = '12';
-  sort = 'desc';
-  category: string | undefined;
-  productsSubscription: Subscription | undefined;
+export class HomeComponent implements OnInit {
+  cols = signal(3);
+  rowHeight = signal(ROWS_HEIGHT[this.cols()]);
+  products = signal<Array<Product>>([]);
+  count = signal('12');
+  sort = signal('desc');
+  category = signal<string | undefined>(undefined);
 
   constructor(
     private cartService: CartService,
@@ -29,30 +27,30 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   onColumnsCountChange(colsNum: number): void {
-    this.cols = colsNum;
-    this.rowHeight = ROWS_HEIGHT[colsNum];
+    this.cols.set(colsNum);
+    this.rowHeight.set(ROWS_HEIGHT[colsNum]);
   }
 
   onItemsCountChange(count: number): void {
-    this.count = count.toString();
+    this.count.set(count.toString());
     this.getProducts();
   }
 
   onSortChange(newSort: string): void {
-    this.sort = newSort;
+    this.sort.set(newSort);
     this.getProducts();
   }
 
   onShowCategory(newCategory: string): void {
-    this.category = newCategory;
+    this.category.set(newCategory);
     this.getProducts();
   }
 
   getProducts(): void {
-    this.productsSubscription = this.storeService
-      .getAllProducts(this.count, this.sort, this.category)
+    this.storeService
+      .getAllProducts(this.count(), this.sort(), this.category())
       .subscribe((_products) => {
-        this.products = _products;
+        this.products.set(_products);
       });
   }
 
@@ -64,11 +62,5 @@ export class HomeComponent implements OnInit, OnDestroy {
       quantity: 1,
       id: product.id,
     });
-  }
-
-  ngOnDestroy(): void {
-    if (this.productsSubscription) {
-      this.productsSubscription.unsubscribe();
-    }
   }
 }

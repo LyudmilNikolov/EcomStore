@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, OnInit, signal } from '@angular/core';
 import { Cart, CartItem } from 'src/app/models/cart.model';
 import { CartService } from 'src/app/services/cart.service';
 
@@ -8,8 +7,8 @@ import { CartService } from 'src/app/services/cart.service';
   selector: 'app-cart',
   templateUrl: './cart.component.html',
 })
-export class CartComponent implements OnInit, OnDestroy {
-  cart: Cart = { items: [] };
+export class CartComponent implements OnInit {
+  cart = signal<Cart>({ items: [] });
   displayedColumns: string[] = [
     'product',
     'name',
@@ -18,15 +17,14 @@ export class CartComponent implements OnInit, OnDestroy {
     'total',
     'action',
   ];
-  dataSource: CartItem[] = [];
-  cartSubscription: Subscription | undefined;
+  dataSource = signal<CartItem[]>([]);
 
   constructor(private cartService: CartService, private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.cartSubscription = this.cartService.cart.subscribe((_cart: Cart) => {
-      this.cart = _cart;
-      this.dataSource = _cart.items;
+    this.cartService.cart.subscribe((_cart: Cart) => {
+      this.cart.set(_cart);
+      this.dataSource.set(_cart.items);
     });
   }
 
@@ -53,11 +51,5 @@ export class CartComponent implements OnInit, OnDestroy {
   onCheckout(): void {
     this.cartService.clearCart();
     console.log("Checkout successfully");
-  }
-
-  ngOnDestroy() {
-    if (this.cartSubscription) {
-      this.cartSubscription.unsubscribe();
-    }
   }
 }

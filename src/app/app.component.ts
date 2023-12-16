@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { Cart, CartItem } from './models/cart.model';
+import { Component, OnInit, signal } from '@angular/core';
+import { Cart } from './models/cart.model';
 import { CartService } from './services/cart.service';
 
 @Component({
@@ -7,13 +7,13 @@ import { CartService } from './services/cart.service';
   templateUrl: './app.component.html',
 })
 export class AppComponent implements OnInit {
-  cart: Cart = { items: [] };
+  cart = signal<Cart>({ items: [] });
 
   constructor(private cartService: CartService) {}
 
   ngOnInit() {
     this.cartService.cart.subscribe((_cart) => {
-      this.cart = _cart;
+      this.cart.set(_cart);
     });
   }
 }

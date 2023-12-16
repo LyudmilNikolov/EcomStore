@@ -1,39 +1,25 @@
-import {
-  Component,
-  EventEmitter,
-  OnDestroy,
-  OnInit,
-  Output,
-} from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, EventEmitter, OnInit, Output, signal } from '@angular/core';
+import { MatSelectionListChange } from '@angular/material/list';
 import { StoreService } from 'src/app/services/store.service';
 
 @Component({
   selector: 'app-filters',
   templateUrl: './filters.component.html',
 })
-export class FiltersComponent implements OnInit, OnDestroy {
+export class FiltersComponent implements OnInit {
   @Output() showCategory = new EventEmitter<string>();
-  categories: string[] | undefined;
-  categoriesSubscription: Subscription | undefined;
+  categories = signal<string[]>([]);
 
   constructor(private storeService: StoreService) {}
 
   ngOnInit(): void {
-    this.categoriesSubscription = this.storeService
-      .getAllCategories()
-      .subscribe((response: Array<string>) => {
-        this.categories = response;
-      });
+    this.storeService.getAllCategories().subscribe((response: Array<string>) => {
+      this.categories.set(response);
+    });
   }
 
-  onShowCategory(category: string): void {
-    this.showCategory.next(category);
-  }
-
-  ngOnDestroy(): void {
-    if (this.categoriesSubscription) {
-      this.categoriesSubscription.unsubscribe();
-    }
+  onSelectionChange(event: MatSelectionListChange): void {
+    const selectedCategory = event.options[0].value;
+    this.showCategory.emit(selectedCategory);
   }
 }
